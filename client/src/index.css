@@ -1,0 +1,75 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+   themes: light --default, dark --prefersdark;
+ }
+
+
+.bubble {
+  position: absolute;
+  bottom: -200px;
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0.4;
+  animation: bubbleFloat linear infinite;
+}
+
+/* LIGHT MODE COLORS */
+.bubble-1 {
+  width: 300px;
+  height: 300px;
+  left: 10%;
+  background: #60a5fa; /* blue */
+  animation-duration: 18s;
+}
+
+.bubble-2 {
+  width: 500px;
+  height: 500px;
+  left: 35%;
+  background: #a78bfa; /* purple */
+  animation-duration: 26s;
+}
+
+.bubble-3 {
+  width: 250px;
+  height: 250px;
+  left: 65%;
+  background: #34d399; /* green */
+  animation-duration: 20s;
+}
+
+.bubble-4 {
+  width: 400px;
+  height: 400px;
+  left: 80%;
+  background: #f472b6; /* pink */
+  animation-duration: 30s;
+}
+
+/* 🌙 DARK MODE OVERRIDES */
+.dark .bubble-1 {
+  background: #0ea5e9; /* neon blue */
+}
+
+.dark .bubble-2 {
+  background: #7c3aed; /* deep violet */
+}
+
+.dark .bubble-3 {
+  background: #22c55e; /* neon green */
+}
+
+.dark .bubble-4 {
+  background: #ec4899; /* neon pink */
+}
+
+/* Animation */
+@keyframes bubbleFloat {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(-120vh) scale(1.2);
+  }
+}
+
