@@ -53,8 +53,11 @@ export const paymentWebhook = async (req, res) => {
     );
 
     if (!isValid) {
+      console.log("INvalid Webhook Signature");
       return res.status(400).json({ msg: "Webhook signature is invalid" });
     }
+    
+     console.log("Valid Webhook Signature");
 
     const paymentDetails = req.body.payload.payment.entity;
 
@@ -77,5 +80,14 @@ export const paymentWebhook = async (req, res) => {
 };
 
 export const verifyPremium = async (req, res) => {
-  res.json(req.user.toJSON());
+
+  // res.json(req.user.toJSON());
+
+  const user = req.user.toJSON();
+  console.log(user);
+  if (user.isPremium) {
+    return res.json({ ...user });
+  }
+  return res.json({ ...user });
+
 };
