@@ -137,8 +137,11 @@ const GlobalCallListener = () => {
         stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
         pc.ontrack = (event) => {
-          if (remoteVideoRef.current) {
-            remoteVideoRef.current.srcObject = event.streams[0];
+          if (event.streams && event.streams[0]) {
+            remoteStreamRef.current = event.streams[0];
+            if (remoteVideoRef.current) {
+              remoteVideoRef.current.srcObject = event.streams[0];
+            }
           }
         };
 
@@ -222,10 +225,17 @@ const GlobalCallListener = () => {
     };
   }, [callState.isCalling, callState.isReceivingCall, callState.isCallActive, callState.targetUserId, callState.callType, currentUserId]);
 
-  // Bind local video stream to localVideoRef when call becomes active
+  const remoteStreamRef = useRef(null);
+
+  // Bind local & remote video streams to HTML elements when call becomes active
   useEffect(() => {
-    if (callState.isCallActive && localStreamRef.current && localVideoRef.current) {
-      localVideoRef.current.srcObject = localStreamRef.current;
+    if (callState.isCallActive) {
+      if (localStreamRef.current && localVideoRef.current) {
+        localVideoRef.current.srcObject = localStreamRef.current;
+      }
+      if (remoteStreamRef.current && remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = remoteStreamRef.current;
+      }
     }
   }, [callState.isCallActive]);
 
@@ -253,11 +263,14 @@ const GlobalCallListener = () => {
 
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
-      pc.ontrack = (event) => {
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = event.streams[0];
-        }
-      };
+        pc.ontrack = (event) => {
+          if (event.streams && event.streams[0]) {
+            remoteStreamRef.current = event.streams[0];
+            if (remoteVideoRef.current) {
+              remoteVideoRef.current.srcObject = event.streams[0];
+            }
+          }
+        };
 
       const socket = createSocketConnection();
 
@@ -336,6 +349,7 @@ const GlobalCallListener = () => {
     // Stop all audio & video tracks cleanly
     [
       localStreamRef.current,
+      remoteStreamRef.current,
       localVideoRef.current?.srcObject,
       remoteVideoRef.current?.srcObject,
     ].forEach((stream) => {
@@ -348,6 +362,7 @@ const GlobalCallListener = () => {
     if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
 
     localStreamRef.current = null;
+    remoteStreamRef.current = null;
     if (peerConnectionRef.current?.pc) {
       try {
         peerConnectionRef.current.pc.close();

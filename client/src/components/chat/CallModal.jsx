@@ -115,14 +115,14 @@ const CallModal = ({
             <span>🔒</span> End-to-end encrypted
           </div>
 
-          {/* Center Main Remote Video Stream */}
+          {/* Center Main Remote Video Stream (Renders for both Audio & Video calls so remote audio track plays uninterrupted) */}
           <div className="relative flex-1 flex items-center justify-center overflow-hidden">
             <video
               ref={remoteVideoRef}
               autoPlay
               playsInline
               className={`w-full h-full object-cover max-h-[80vh] rounded-2xl ${
-                callState.callType === "audio" ? "hidden" : "block"
+                callState.callType === "audio" ? "opacity-0 absolute inset-0 pointer-events-none" : "block"
               }`}
             />
 
