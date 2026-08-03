@@ -5,16 +5,10 @@ let socketInstance = null;
 
 export const createSocketConnection = () => {
   if (!socketInstance) {
-    if (location.hostname === "localhost") {
-      socketInstance = io(BASE_URL, {
-        autoConnect: true,
-      });
-    } else {
-      socketInstance = io("/", {
-        path: "/api/socket.io",
-        autoConnect: true,
-      });
-    }
+    socketInstance = io(BASE_URL, {
+      autoConnect: true,
+      withCredentials: true,
+    });
   }
 
   if (!socketInstance.connected) {
