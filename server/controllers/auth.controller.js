@@ -2,15 +2,6 @@ import bcrypt from "bcrypt";
 import User from "../models/user.js";
 import { validateSignUpData } from "../utils/validation.js";
 
-const isProduction = process.env.NODE_ENV === "production";
-
-const cookieOptions = {
-  httpOnly: true,
-  sameSite: isProduction ? "none" : "lax",
-  secure: isProduction,
-  expires: new Date(Date.now() + 8 * 3600000),
-};
-
 export const signup = async (req, res) => {
   try {
     validateSignUpData(req);
@@ -29,7 +20,9 @@ export const signup = async (req, res) => {
     const savedUser = await user.save();
     const token = await savedUser.getJWT();
 
-    res.cookie("token", token, cookieOptions);
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000),
+    });
 
     res.json({ message: "User Added successfully!", data: savedUser });
   } catch (err) {
@@ -52,7 +45,12 @@ export const login = async (req, res) => {
     }
 
     const token = await user.getJWT();
-    res.cookie("token", token, cookieOptions);
+    res.cookie("token", token, {
+      httpOnly: true,        // ✅ security
+      sameSite: "lax",       // ✅ REQUIRED for localhost
+      secure: false,         // ✅ MUST be false on http
+      expires: new Date(Date.now() + 8 * 3600000),
+    });
 
     res.send(user);
   } catch (err) {
@@ -62,7 +60,6 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   res.cookie("token", null, {
-    ...cookieOptions,
     expires: new Date(Date.now()),
   });
   res.send("Logout Successful!!");
