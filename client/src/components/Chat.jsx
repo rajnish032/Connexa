@@ -437,7 +437,7 @@ const Chat = () => {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      peerConnectionRef.current = { pc };
+      peerConnectionRef.current = { pc, targetUserId };
 
       setCallState({
         isCalling: true,
@@ -478,7 +478,10 @@ const Chat = () => {
       }
 
       const pc = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+        ],
       });
 
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
@@ -507,7 +510,7 @@ const Chat = () => {
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
 
-      peerConnectionRef.current = { pc };
+      peerConnectionRef.current = { pc, targetUserId };
 
       setCallState((prev) => ({ ...prev, isCalling: false, isReceivingCall: false, isCallActive: true }));
 
@@ -575,7 +578,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="w-full h-[calc(100vh-4.05rem)] flex bg-base-100 text-base-content overflow-hidden relative">
+    <div className="w-full h-[calc(100dvh-4.05rem)] flex bg-base-100 text-base-content overflow-hidden relative">
       
       {/* Toast Notification */}
       {toastMessage && (

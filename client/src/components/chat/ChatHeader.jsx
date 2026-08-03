@@ -11,12 +11,12 @@ const ChatHeader = ({
   setInChatSearchQuery,
 }) => {
   return (
-    <div className="p-3 px-6 border-b border-base-300 bg-base-100 flex items-center justify-between shadow-sm z-10 text-base-content">
-      <div className="flex items-center gap-3">
+    <div className="p-2.5 sm:px-6 border-b border-base-300 bg-base-100 flex items-center justify-between shadow-sm z-10 text-base-content min-w-0">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
         {/* Back button for mobile view */}
         <button
           onClick={onBackToSidebar}
-          className="btn btn-ghost btn-xs btn-circle md:hidden text-base-content"
+          className="btn btn-ghost btn-xs btn-circle md:hidden text-base-content shrink-0"
           aria-label="Back to chat list"
         >
           <svg
@@ -35,8 +35,8 @@ const ChatHeader = ({
           </svg>
         </button>
 
-        <div className="avatar">
-          <div className="w-10 h-10 rounded-full ring ring-primary/30">
+        <div className="avatar shrink-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full ring ring-primary/30">
             <img
               src={
                 activeTargetUser?.photoUrl ||
@@ -51,29 +51,29 @@ const ChatHeader = ({
           </div>
         </div>
 
-        <div>
-          <h3 className="font-bold text-base text-base-content leading-tight">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-bold text-sm sm:text-base text-base-content leading-tight truncate">
             {activeTargetUser
               ? `${activeTargetUser.firstName} ${activeTargetUser.lastName}`
               : "Chat Partner"}
           </h3>
-          <p className="text-[11px] text-emerald-500 font-medium flex items-center gap-1.5 mt-0.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <p className="text-[10px] sm:text-[11px] text-emerald-500 font-medium flex items-center gap-1 mt-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
             Online
           </p>
         </div>
       </div>
 
       {/* Header Actions & In-Chat Search */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
         {showInChatSearch ? (
-          <div className="relative flex items-center animate-fade-in">
+          <div className="relative flex items-center animate-fade-in max-w-[120px] sm:max-w-none">
             <input
               type="text"
-              placeholder="Search in chat..."
+              placeholder="Search..."
               value={inChatSearchQuery}
               onChange={(e) => setInChatSearchQuery(e.target.value)}
-              className="input input-xs input-bordered bg-base-100 text-base-content focus:outline-none focus:border-primary rounded-lg px-2 pr-7 text-xs"
+              className="input input-xs input-bordered bg-base-100 text-base-content focus:outline-none focus:border-primary rounded-lg px-2 pr-6 text-xs w-full"
               autoFocus
             />
             <button
@@ -116,7 +116,7 @@ const ChatHeader = ({
 
         <Link
           to="/connections"
-          className="btn btn-outline btn-xs gap-1 border-base-300 text-base-content ml-1"
+          className="btn btn-outline btn-xs border-base-300 text-base-content hidden sm:flex"
         >
           Profile
         </Link>

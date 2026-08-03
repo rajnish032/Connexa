@@ -217,7 +217,7 @@ const GlobalCallListener = () => {
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
 
-      peerConnectionRef.current = { pc };
+      peerConnectionRef.current = { pc, targetUserId };
 
       setCallState((prev) => ({ ...prev, isCalling: false, isReceivingCall: false, isCallActive: true }));
 
