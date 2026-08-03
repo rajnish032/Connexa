@@ -20,7 +20,11 @@ export const signup = async (req, res) => {
     const savedUser = await user.save();
     const token = await savedUser.getJWT();
 
+    const isProduction = process.env.NODE_ENV === "production";
     res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: isProduction ? "none" : "lax",
+      secure: isProduction,
       expires: new Date(Date.now() + 8 * 3600000),
     });
 
@@ -45,10 +49,11 @@ export const login = async (req, res) => {
     }
 
     const token = await user.getJWT();
+    const isProduction = process.env.NODE_ENV === "production";
     res.cookie("token", token, {
-      httpOnly: true,        // ✅ security
-      sameSite: "lax",       // ✅ REQUIRED for localhost
-      secure: false,         // ✅ MUST be false on http
+      httpOnly: true,
+      sameSite: isProduction ? "none" : "lax",
+      secure: isProduction,
       expires: new Date(Date.now() + 8 * 3600000),
     });
 
@@ -59,7 +64,11 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
   res.cookie("token", null, {
+    httpOnly: true,
+    sameSite: isProduction ? "none" : "lax",
+    secure: isProduction,
     expires: new Date(Date.now()),
   });
   res.send("Logout Successful!!");
