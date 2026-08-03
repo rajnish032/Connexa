@@ -293,18 +293,15 @@ const initializeSocket = (server) => {
       const senderId = cleanId(from);
       const roomId = getSecretRoomId(senderId, targetId);
 
-      io.to(`user_${targetId}`).emit("incomingCall", {
+      const payload = {
         signal: signalData,
         from: senderId,
         name,
         callType,
-      });
-      io.to(roomId).emit("incomingCall", {
-        signal: signalData,
-        from: senderId,
-        name,
-        callType,
-      });
+      };
+
+      io.to(`user_${targetId}`).emit("incomingCall", payload);
+      io.to(roomId).emit("incomingCall", payload);
     });
 
     socket.on("answerCall", ({ to, from, signal }) => {
@@ -313,6 +310,7 @@ const initializeSocket = (server) => {
       const roomId = getSecretRoomId(senderId, targetId);
 
       io.to(`user_${targetId}`).emit("callAccepted", { signal });
+      io.to(`user_${senderId}`).emit("callAccepted", { signal });
       io.to(roomId).emit("callAccepted", { signal });
     });
 
@@ -322,6 +320,7 @@ const initializeSocket = (server) => {
       const roomId = getSecretRoomId(senderId, targetId);
 
       io.to(`user_${targetId}`).emit("callRejected");
+      io.to(`user_${senderId}`).emit("callRejected");
       io.to(roomId).emit("callRejected");
     });
 
@@ -331,6 +330,7 @@ const initializeSocket = (server) => {
       const roomId = getSecretRoomId(senderId, targetId);
 
       io.to(`user_${targetId}`).emit("callEnded");
+      io.to(`user_${senderId}`).emit("callEnded");
       io.to(roomId).emit("callEnded");
     });
 
@@ -401,6 +401,7 @@ const initializeSocket = (server) => {
       const roomId = getSecretRoomId(senderId, targetId);
 
       io.to(`user_${targetId}`).emit("iceCandidate", { candidate });
+      io.to(`user_${senderId}`).emit("iceCandidate", { candidate });
       io.to(roomId).emit("iceCandidate", { candidate });
     });
 

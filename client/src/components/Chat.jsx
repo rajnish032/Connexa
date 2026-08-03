@@ -396,185 +396,18 @@ const Chat = () => {
   };
 
   // --- WEBRTC P2P CALL HANDLERS ---
-  const startCall = async (callType) => {
+  const startCall = (callType) => {
     if (!targetUserId) return;
-    try {
-      const constraints = {
-        audio: true,
-        video: callType === "video",
-      };
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      localStreamRef.current = stream;
-
-      if (localVideoRef.current && callType === "video") {
-        localVideoRef.current.srcObject = stream;
-      }
-
-      const pc = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-      });
-
-      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-
-      pc.ontrack = (event) => {
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = event.streams[0];
-        }
-      };
-
-      const socket = createSocketConnection();
-
-      pc.onicecandidate = (event) => {
-        if (event.candidate) {
-          socket.emit("iceCandidate", {
-            to: targetUserId,
-            from: userId,
-            candidate: event.candidate,
-          });
-        }
-      };
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      peerConnectionRef.current = { pc, targetUserId };
-
-      setCallState({
-        isCalling: true,
-        isReceivingCall: false,
-        isCallActive: false,
-        callerName: activeTargetUser ? `${activeTargetUser.firstName} ${activeTargetUser.lastName}` : "Connection",
-        callType,
-      });
-
-      const currentUserId = user?._id || user?.data?._id;
-      const callerFirstName = user?.firstName || user?.data?.firstName || "Connection";
-
-      socket.emit("callUser", {
-        userToCall: targetUserId,
-        signalData: offer,
-        from: currentUserId,
-        name: callerFirstName,
-        callType,
-      });
-    } catch (err) {
-      console.error("Camera/Mic access denied:", err);
-      showToast("Camera or Microphone access required for calls.");
-    }
-  };
-
-  const acceptCall = async () => {
-    try {
-      const callType = callState.callType || "video";
-      const constraints = {
-        audio: true,
-        video: callType === "video",
-      };
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      localStreamRef.current = stream;
-
-      if (localVideoRef.current && callType === "video") {
-        localVideoRef.current.srcObject = stream;
-      }
-
-      const pc = new RTCPeerConnection({
-        iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
-          { urls: "stun:stun1.l.google.com:19302" },
-        ],
-      });
-
-      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-
-      pc.ontrack = (event) => {
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = event.streams[0];
-        }
-      };
-
-      const socket = createSocketConnection();
-
-      pc.onicecandidate = (event) => {
-        if (event.candidate) {
-          socket.emit("iceCandidate", {
-            to: targetUserId,
-            from: userId,
-            candidate: event.candidate,
-          });
-        }
-      };
-
-      const incomingSignal = peerConnectionRef.current?.signal;
-      await pc.setRemoteDescription(new RTCSessionDescription(incomingSignal));
-
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-
-      peerConnectionRef.current = { pc, targetUserId };
-
-      setCallState((prev) => ({ ...prev, isCalling: false, isReceivingCall: false, isCallActive: true }));
-
-      socket.emit("answerCall", {
-        to: targetUserId,
-        from: userId,
-        signal: answer,
-      });
-    } catch (err) {
-      console.error("Error accepting call:", err);
-      rejectCall();
-    }
-  };
-
-  const rejectCall = () => {
-    const socket = createSocketConnection();
-    socket.emit("rejectCall", { to: targetUserId, from: userId });
-    endCallCleanup();
-  };
-
-  const endCall = () => {
-    const socket = createSocketConnection();
-    socket.emit("endCall", { to: targetUserId, from: userId });
-    endCallCleanup();
-  };
-
-  const endCallCleanup = () => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => track.stop());
-      localStreamRef.current = null;
-    }
-    if (peerConnectionRef.current?.pc) {
-      peerConnectionRef.current.pc.close();
-    }
-    peerConnectionRef.current = null;
-    setCallState({
-      isCalling: false,
-      isReceivingCall: false,
-      isCallActive: false,
-      callerName: "",
-      callType: "video",
-    });
-    setIsMuted(false);
-    setIsVideoOff(false);
-  };
-
-  const toggleMute = () => {
-    if (localStreamRef.current) {
-      const audioTrack = localStreamRef.current.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-        setIsMuted(!audioTrack.enabled);
-      }
-    }
-  };
-
-  const toggleVideo = () => {
-    if (localStreamRef.current) {
-      const videoTrack = localStreamRef.current.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-        setIsVideoOff(!videoTrack.enabled);
-      }
-    }
+    const callerName = activeTargetUser ? `${activeTargetUser.firstName} ${activeTargetUser.lastName}` : "Connection";
+    window.dispatchEvent(
+      new CustomEvent("startGlobalCall", {
+        detail: {
+          targetUserId,
+          callType,
+          callerName,
+        },
+      })
+    );
   };
 
   return (
@@ -594,20 +427,6 @@ const Chat = () => {
         onChange={handleFileChange}
         accept={fileInputType}
         className="hidden"
-      />
-
-      {/* Call Modal Component */}
-      <CallModal
-        callState={callState}
-        localVideoRef={localVideoRef}
-        remoteVideoRef={remoteVideoRef}
-        isMuted={isMuted}
-        isVideoOff={isVideoOff}
-        onAcceptCall={acceptCall}
-        onRejectCall={rejectCall}
-        onEndCall={endCall}
-        onToggleMute={toggleMute}
-        onToggleVideo={toggleVideo}
       />
 
       <div className="w-full h-full flex flex-col md:flex-row overflow-hidden border-t border-base-300">

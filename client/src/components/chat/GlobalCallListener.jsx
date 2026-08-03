@@ -115,7 +115,73 @@ const GlobalCallListener = () => {
       dispatch(addNotification(notifData));
     });
 
+    const handleStartGlobalCall = async (e) => {
+      const { targetUserId, callType, callerName } = e.detail || {};
+      if (!targetUserId) return;
+
+      try {
+        const constraints = {
+          audio: true,
+          video: callType === "video",
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        localStreamRef.current = stream;
+
+        const pc = new RTCPeerConnection({
+          iceServers: [
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:stun1.l.google.com:19302" },
+          ],
+        });
+
+        stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+        pc.ontrack = (event) => {
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = event.streams[0];
+          }
+        };
+
+        pc.onicecandidate = (event) => {
+          if (event.candidate) {
+            socket.emit("iceCandidate", {
+              to: targetUserId,
+              from: currentUserId,
+              candidate: event.candidate,
+            });
+          }
+        };
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+
+        peerConnectionRef.current = { pc, targetUserId };
+
+        setCallState({
+          isCalling: true,
+          isReceivingCall: false,
+          isCallActive: false,
+          callerName: callerName || "Connection",
+          callType: callType || "video",
+          targetUserId,
+        });
+
+        socket.emit("callUser", {
+          userToCall: targetUserId,
+          signalData: offer,
+          from: currentUserId,
+          name: user?.firstName || "Connection",
+          callType: callType || "video",
+        });
+      } catch (err) {
+        console.error("Camera/Mic access error starting call:", err);
+      }
+    };
+
+    window.addEventListener("startGlobalCall", handleStartGlobalCall);
+
     return () => {
+      window.removeEventListener("startGlobalCall", handleStartGlobalCall);
       socket.off("connect", handleJoinUserRoom);
       socket.off("incomingCall");
       socket.off("callAccepted");
@@ -124,7 +190,7 @@ const GlobalCallListener = () => {
       socket.off("iceCandidate");
       socket.off("newNotification");
     };
-  }, [currentUserId, dispatch]);
+  }, [currentUserId, dispatch, user?.firstName]);
 
   // 30-Second Automatic Ringing Timeout
   useEffect(() => {
