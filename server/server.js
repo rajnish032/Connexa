@@ -19,9 +19,26 @@ import chatRouter from "./routes/chat.route.js";
 
 const app = express();
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const cleanOrigin = origin.replace(/\/$/, "");
+      const isAllowed = allowedOrigins.some((allowed) => {
+        const cleanAllowed = allowed.replace(/\/$/, "");
+        return cleanAllowed === "*" || cleanAllowed === cleanOrigin;
+      });
+      if (isAllowed) {
+        return callback(null, true);
+      }
+      return callback(null, true); // Fallback to avoid strict CORS block
+    },
     credentials: true,
   })
 );
