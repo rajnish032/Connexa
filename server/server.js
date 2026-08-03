@@ -21,7 +21,7 @@ const app = express();
 
 app.use(
   cors({
-    origin:"http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
@@ -43,7 +43,7 @@ connectDB()
   .then(() => {
     console.log("Database connection established...");
     server.listen(process.env.PORT, () => {
-      console.log("Server is successfully listening on 8080...");
+      console.log("Server is successfully listening on ...");
     });
   })
   .catch(() => {
