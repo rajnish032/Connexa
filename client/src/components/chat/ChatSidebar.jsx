@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router";
+import { DEFAULT_USER_AVATAR } from "../../utils/constant";
 
 const ChatSidebar = ({
   connections,
@@ -58,7 +59,7 @@ const ChatSidebar = ({
       </div>
 
       {/* Connection List Container */}
-      <div className="flex-1 overflow-y-auto divide-y divide-base-300/40">
+      <div className="flex-1 overflow-y-auto overscroll-contain divide-y divide-base-300/40">
         {loadingConnections ? (
           <div className="flex justify-center items-center p-8">
             <span className="loading loading-spinner loading-md text-primary"></span>
@@ -94,14 +95,10 @@ const ChatSidebar = ({
                 <div className="avatar">
                   <div className="w-12 h-12 rounded-full ring ring-primary/20">
                     <img
-                      src={
-                        conn.photoUrl ||
-                        "https://geographyandthemotive.org/wp-content/uploads/2018/04/dummy-user-img.png"
-                      }
+                      src={conn.photoUrl || DEFAULT_USER_AVATAR}
                       alt={conn.firstName}
                       onError={(e) => {
-                        e.target.src =
-                          "https://geographyandthemotive.org/wp-content/uploads/2018/04/dummy-user-img.png";
+                        e.target.src = DEFAULT_USER_AVATAR;
                       }}
                       className="object-cover"
                     />

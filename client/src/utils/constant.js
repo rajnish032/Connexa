@@ -1,1 +1,3 @@
 export const BASE_URL = import.meta.env.VITE_SERVER_URL || (location.hostname === "localhost" ? "http://localhost:8000" : "");
+
+export const DEFAULT_USER_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%236366f1'/><circle cx='50' cy='38' r='20' fill='%23ffffff'/><path d='M20,88 C20,68 35,58 50,58 C65,58 80,68 80,88 Z' fill='%23ffffff'/></svg>";

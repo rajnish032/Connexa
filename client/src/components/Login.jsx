@@ -2,12 +2,13 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addUser } from "../store/userSlice";
+import { clearFeed } from "../store/feedSlice";
 import { useNavigate } from "react-router";
 import { BASE_URL } from "../utils/constant";
 import AnimatedBackground from "./AnimatedBackground";
 
 const Login = () => {
-  const [emailId, setEmailId] = useState("rajnish.dev@example.com");
+  const [emailId, setEmailId] = useState("vishnu@gmail.com");
   const [password, setPassword] = useState("Test@1234");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -28,6 +29,7 @@ const Login = () => {
         { withCredentials: true }
       );
       dispatch(addUser(res.data));
+      dispatch(clearFeed());
       return navigate("/");
     } catch (err) {
       setError(err?.response?.data || "Failed to log in. Please check your credentials.");
@@ -46,6 +48,7 @@ const Login = () => {
         { withCredentials: true }
       );
       dispatch(addUser(res.data.data));
+      dispatch(clearFeed());
       return navigate("/profile");
     } catch (err) {
       setError(err?.response?.data || "Failed to sign up. Please try again.");

@@ -411,7 +411,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="w-full h-[calc(100dvh-4.05rem)] flex bg-base-100 text-base-content overflow-hidden relative">
+    <div className="w-full h-[calc(100dvh-4rem)] md:h-[calc(100dvh-4.05rem)] flex bg-base-100 text-base-content overflow-hidden relative">
       
       {/* Toast Notification */}
       {toastMessage && (
@@ -443,7 +443,7 @@ const Chat = () => {
 
         {/* RIGHT MAIN PANEL */}
         <div
-          className={`flex-1 flex flex-col bg-base-100 ${
+          className={`flex-1 flex flex-col bg-base-100 min-h-0 h-full overflow-hidden ${
             !targetUserId ? "hidden md:flex" : "flex"
           }`}
         >
@@ -462,7 +462,7 @@ const Chat = () => {
 
               {/* Chat Messages Thread */}
               <div
-                className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 bg-base-200/40 relative"
+                className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y p-4 md:p-6 space-y-4 bg-base-200/40 relative"
                 onClick={() => {
                   setActiveReactMsgId(null);
                   setDoubleClickMsgId(null);

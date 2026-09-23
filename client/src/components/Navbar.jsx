@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router";
-import { BASE_URL } from "../utils/constant";
+import { Link, useNavigate, useLocation } from "react-router";
+import { BASE_URL, DEFAULT_USER_AVATAR } from "../utils/constant";
 import { removeUser } from "../store/userSlice";
+import { clearFeed } from "../store/feedSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { markAllAsRead, clearNotifications } from "../store/notificationSlice";
 
@@ -11,6 +12,9 @@ const Navbar = () => {
   const notifications = useSelector((store) => store.notifications) || { items: [], unreadCount: 0 };
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isChatRoute = location.pathname.startsWith("/chat");
 
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") || "dark"
@@ -34,6 +38,7 @@ const Navbar = () => {
     try {
       await axios.post(BASE_URL + "/logout", {}, { withCredentials: true });
       dispatch(removeUser());
+      dispatch(clearFeed());
       return navigate("/login");
     } catch (err) {
       console.error("Logout error:", err);
@@ -58,7 +63,11 @@ const Navbar = () => {
   };
 
   return (
-    <div className="navbar bg-base-100/90 backdrop-blur-md sticky top-0 z-50 border-b border-base-300 px-4 md:px-8 shadow-sm">
+    <div
+      className={`${
+        isChatRoute ? "hidden md:flex" : "flex"
+      } navbar bg-base-100/90 backdrop-blur-md sticky top-0 z-50 border-b border-base-300 px-4 md:px-8 shadow-sm`}
+    >
       <div className="flex-1">
         <Link to="/" className="btn btn-ghost text-xl font-extrabold tracking-tight gap-2">
           <span className="text-2xl">👦🏻</span>
@@ -228,6 +237,7 @@ const Navbar = () => {
               Welcome, <strong className="text-base-content">{user.firstName}</strong>
             </span>
 
+            {/* Profile Avatar Dropdown */}
             <div className="dropdown dropdown-end">
               <div
                 tabIndex={0}
@@ -237,13 +247,9 @@ const Navbar = () => {
                 <div className="w-10 rounded-full">
                   <img
                     alt={`${user.firstName}'s avatar`}
-                    src={
-                      user.photoUrl ||
-                      "https://geographyandthemotive.org/wp-content/uploads/2018/04/dummy-user-img.png"
-                    }
+                    src={user.photoUrl || DEFAULT_USER_AVATAR}
                     onError={(e) => {
-                      e.target.src =
-                        "https://geographyandthemotive.org/wp-content/uploads/2018/04/dummy-user-img.png";
+                      e.target.src = DEFAULT_USER_AVATAR;
                     }}
                   />
                 </div>
